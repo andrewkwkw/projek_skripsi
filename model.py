@@ -8,7 +8,7 @@ from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 
 class SSHLogAnalyzer:
-    def __init__(self, contamination='auto'):
+    def __init__(self, contamination=0.35, n_estimators=300):
         # Regex dasar
         self.regex_pattern = re.compile(
             r'(?P<date>(?:[A-Z][a-z]{2}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})|(?:\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})))\s+\S+\s+sshd\[\d+\]:\s*'
@@ -17,8 +17,8 @@ class SSHLogAnalyzer:
         self.ip_pattern = re.compile(r'(?:rhost=|from\s+)(?P<ip>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})')
         self.user_pattern = re.compile(r'(?:user=|user\s+|for\s+)(?P<user>\S+)')
         
-        # Inisialisasi
-        self.iso_forest = IsolationForest(contamination=contamination, random_state=42)
+        # Inisialisasi (Tuning Optimal: n_estimators=300, contamination pasti)
+        self.iso_forest = IsolationForest(n_estimators=n_estimators, contamination=contamination, random_state=42)
         self.scaler = StandardScaler()
         
         # Data statistik simulasi untuk Z-Score (Akan ditimpa saat training)
@@ -180,42 +180,48 @@ class SSHLogAnalyzer:
 
 if __name__ == "__main__":
     import sys
-    log_file = "auth.log"
+    log_file = "auth2.log"
     if not os.path.exists(log_file):
-        print(f"File {log_file} tidak ditemukan!")
+        print(f"File log {log_file} tidak ditemukan!")
         sys.exit(1)
 
-    with open(log_file, "r") as f:
+    print("=== TAHAP 1: MEMBACA DAN PARSING LOG ===")
+    with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
         raw_logs = f.readlines()
-
-    # Kita menggunakan contamination 0.2 untuk contoh data yang sangat kecil
-    analyzer = SSHLogAnalyzer(contamination=0.2)
-    
-    print("=== TAHAP 2: PARSING LOG ===")
+        
+    # HYPERPARAMETER TUNING: Mengubah menjadi n_estimators=300 dan contamination=0.35
+    analyzer = SSHLogAnalyzer(contamination=0.35, n_estimators=300)
     df_parsed = analyzer.parse_log(raw_logs)
-    print(df_parsed.to_string())
-    print("\n")
-    
-    print("=== TAHAP 3: FEATURE ENGINEERING (SAMPEL) ===")
+    print(f"Total baris log diparse: {len(df_parsed)}")
+    print("Cuplikan Data Hasil Parsing (5 Teratas):")
+    print(df_parsed.head(5).to_string())
+    print("...")
+
+    print("\n=== TAHAP 2: FEATURE ENGINEERING ===")
     df_features = analyzer.feature_engineering(df_parsed)
+    print(f"Total Jendela Waktu (1-Menit) Terbentuk: {len(df_features)}")
+    print("Cuplikan Data Ekstraksi Fitur (10 Teratas):")
     print(df_features.head(10).to_string())
-    print("... (data selanjutnya disembunyikan agar rapi) ...\n")
+    print("...")
     
-    print("=== TRAINING ISOLATION FOREST ===")
+    print("\n=== TAHAP 3: TRAINING ISOLATION FOREST ===")
     analyzer.train_isolation_forest(df_features)
-    print("Model berhasil dilatih.\n")
-    
-    print("=== TAHAP 4 & 5: DETEKSI ANCAMAN (HANYA MENAMPILKAN ANOMALI) ===")
+    analyzer.save_model("model.pkl")
+
+    print("\n=== TAHAP 4: DETEKSI ANOMALI (CONTOH HASIL) ===")
     results = analyzer.detect_anomalies(df_features)
     
-    anomalies_found = False
-    for res in results:
+    # Tampilkan 10 serangan yang paling berbahaya sebagai contoh
+    print("10 Contoh Anomali Terparah (Diurutkan berdasarkan gagal login terbanyak):")
+    results_sorted = sorted(results, key=lambda x: x['failed_count'], reverse=True)
+    count = 0
+    for res in results_sorted:
         if res['severity'] in ['WARNING', 'CRITICAL']:
-            anomalies_found = True
             print(f"[{res['time_window']}] IP: {res['ip']:<15} | Failed: {res['failed_count']:<3} | "
                   f"Z-Score: {res['z_score']:>5.2f} | IF Output: {res['if_label']:>2} | "
                   f"SEVERITY: {res['severity']}")
-                  
-    if not anomalies_found:
-        print("✅ Server Aman. Tidak ada serangan brute-force yang terdeteksi.")
+            count += 1
+            if count >= 10: break
+
+    print("\n✅ Model terlatih, simulasi berhasil ditampilkan, dan disimpan sebagai model.pkl!")
 
