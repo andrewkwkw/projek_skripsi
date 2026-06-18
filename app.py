@@ -90,20 +90,23 @@ def process_logs_batch(raw_lines):
                 'top_username': r['top_username']
             }
         else:
-            # Akumulasi count
-            aggregated[ip]['failed_count'] += failed_count
-            # Ambil Z-score tertinggi
-            if z_score > aggregated[ip]['z_score']:
-                aggregated[ip]['z_score'] = z_score
-                aggregated[ip]['reason'] = reason # Update reason mengikuti z_score tertinggi
-            # Ambil Severity terburuk
-            if severity == 'CRITICAL':
-                aggregated[ip]['severity'] = 'CRITICAL'
-            elif severity == 'WARNING' and aggregated[ip]['severity'] != 'CRITICAL':
-                aggregated[ip]['severity'] = 'WARNING'
-            # Ambil label IF terburuk (-1)
-            if if_label == -1:
-                aggregated[ip]['if_label'] = -1
+            # Bandingkan tingkat severity (Prioritas: CRITICAL > WARNING > NORMAL)
+            severity_order = {'NORMAL': 0, 'WARNING': 1, 'CRITICAL': 2}
+            current_sev = severity_order[aggregated[ip]['severity']]
+            new_sev = severity_order[severity]
+            
+            # Ganti data dashboard dengan "Jendela Waktu Terburuk" dari IP ini
+            if new_sev > current_sev or (new_sev == current_sev and z_score > aggregated[ip]['z_score']):
+                aggregated[ip] = {
+                    'ip': ip,
+                    'time_window': r['time_window'],
+                    'failed_count': failed_count,
+                    'z_score': z_score,
+                    'if_label': if_label,
+                    'severity': severity,
+                    'reason': reason,
+                    'top_username': r['top_username']
+                }
                 
     results_sorted = sorted(list(aggregated.values()), key=lambda x: x['failed_count'], reverse=True)
     
