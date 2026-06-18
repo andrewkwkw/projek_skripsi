@@ -219,7 +219,7 @@ if __name__ == "__main__":
     
     print("\n=== TAHAP 3: MEMUAT MODEL (TIDAK MELATIH ULANG) ===")
     try:
-        analyzer.load_model("model.pkl")
+        analyzer = SSHLogAnalyzer.load_model("model.pkl")
     except Exception as e:
         print(f"Gagal memuat model.pkl: {e}")
         print("Pastikan Anda sudah mengunggah model.pkl dari komputer lokal Anda ke VPS!")
