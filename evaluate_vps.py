@@ -17,9 +17,14 @@ def run_eval(analyzer, name, raw_logs):
         print("Tidak ada data yang bisa dievaluasi.")
         return
 
-    # Training & Prediksi menggunakan model yang ada
-    print("Sedang melatih algoritma dengan data terbaru...")
-    analyzer.train_isolation_forest(df_features)
+    # Evaluasi menggunakan model yang ada
+    print("Memuat 'otak' model (model.pkl) untuk mengevaluasi data terbaru...")
+    try:
+        analyzer = SSHLogAnalyzer.load_model("model.pkl")
+    except Exception as e:
+        print(f"Gagal memuat model.pkl: {e}")
+        return
+        
     results = analyzer.detect_anomalies(df_features)
 
     y_true = []
