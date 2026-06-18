@@ -22,7 +22,7 @@ echo "[3/4] Mengkonfigurasi Systemd Service..."
 CURRENT_DIR=$(pwd)
 sed -i "s|WorkingDirectory=.*|WorkingDirectory=$CURRENT_DIR|g" sismon.service
 sed -i "s|Environment=.*|Environment=\"PATH=$CURRENT_DIR/venv/bin\"|g" sismon.service
-sed -i "s|ExecStart=.*|ExecStart=$CURRENT_DIR/venv/bin/gunicorn --workers 1 --threads 4 --bind 0.0.0.0:80 app:app|g" sismon.service
+sed -i "s|ExecStart=.*|ExecStart=$CURRENT_DIR/venv/bin/gunicorn --workers 1 --threads 4 --bind 0.0.0.0:5000 app:app|g" sismon.service
 
 cp sismon.service /etc/systemd/system/
 systemctl daemon-reload
@@ -33,5 +33,5 @@ echo "[4/4] Setup Selesai!"
 echo "==============================================="
 echo "Aplikasi sekarang berjalan di background menggunakan Gunicorn."
 echo "Untuk mengecek statusnya: systemctl status sismon"
-echo "Silakan buka http://[IP_VPS_ANDA] di browser!"
+echo "Silakan buka http://[IP_VPS_ANDA]:5000 di browser!"
 echo "==============================================="
