@@ -11,7 +11,7 @@ fi
 
 echo "[1/4] Menginstall dependencies OS..."
 apt-get update
-apt-get install -y python3-pip python3-venv git
+apt-get install -y python3-pip python3-venv git nginx
 
 echo "[2/4] Menyiapkan Virtual Environment Python..."
 python3 -m venv venv
@@ -29,9 +29,17 @@ systemctl daemon-reload
 systemctl enable sismon
 systemctl start sismon
 
+echo "[3.5/4] Mengkonfigurasi Nginx Reverse Proxy..."
+cp nginx_sismon.conf /etc/nginx/sites-available/sismon
+ln -sf /etc/nginx/sites-available/sismon /etc/nginx/sites-enabled/
+rm -f /etc/nginx/sites-enabled/default
+systemctl restart nginx
+systemctl enable nginx
+
 echo "[4/4] Setup Selesai!"
 echo "==============================================="
 echo "Aplikasi sekarang berjalan di background menggunakan Gunicorn."
+echo "Website sekarang dapat diakses tanpa port 5000 melalui Nginx."
 echo "Untuk mengecek statusnya: systemctl status sismon"
-echo "Silakan buka http://[IP_VPS_ANDA]:5000 di browser!"
+echo "Silakan buka http://vps.homelab.my di browser!"
 echo "==============================================="
