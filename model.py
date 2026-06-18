@@ -180,17 +180,29 @@ class SSHLogAnalyzer:
 
 if __name__ == "__main__":
     import sys
-    log_file = "auth2.log"
+    import os
+    log_file = "/var/log/auth.log"
+    
+    if os.name == 'nt':
+        print("Tampaknya Anda menjalankan ini di Windows/Lokal.")
+        print("Skrip ini (VPS/model.py) dikhususkan untuk berjalan di Linux VPS (/var/log/auth.log).")
+        sys.exit(1)
+
     if not os.path.exists(log_file):
-        print(f"File log {log_file} tidak ditemukan!")
+        print(f"File log {log_file} tidak ditemukan di VPS!")
         sys.exit(1)
 
     print("=== TAHAP 1: MEMBACA DAN PARSING LOG ===")
+    MAX_LINES = 100000
     with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
-        raw_logs = f.readlines()
-        
-    # HYPERPARAMETER TUNING: Mengubah menjadi n_estimators=300 dan contamination=0.35
-    analyzer = SSHLogAnalyzer(contamination=0.35, n_estimators=300)
+        all_logs = f.readlines()
+        if len(all_logs) > MAX_LINES:
+            print(f"Log terlalu besar ({len(all_logs)} baris). Mengambil {MAX_LINES} baris terbaru saja...")
+            raw_logs = all_logs[-MAX_LINES:]
+        else:
+            raw_logs = all_logs
+            
+    analyzer = SSHLogAnalyzer()
     df_parsed = analyzer.parse_log(raw_logs)
     print(f"Total baris log diparse: {len(df_parsed)}")
     print("Cuplikan Data Hasil Parsing (5 Teratas):")
@@ -200,13 +212,18 @@ if __name__ == "__main__":
     print("\n=== TAHAP 2: FEATURE ENGINEERING ===")
     df_features = analyzer.feature_engineering(df_parsed)
     print(f"Total Jendela Waktu (1-Menit) Terbentuk: {len(df_features)}")
-    print("Cuplikan Data Ekstraksi Fitur (10 Teratas):")
-    print(df_features.head(10).to_string())
+    if not df_features.empty:
+        print("Cuplikan Data Ekstraksi Fitur (5 Teratas):")
+        print(df_features.head(5).to_string())
     print("...")
     
-    print("\n=== TAHAP 3: TRAINING ISOLATION FOREST ===")
-    analyzer.train_isolation_forest(df_features)
-    analyzer.save_model("model.pkl")
+    print("\n=== TAHAP 3: MEMUAT MODEL (TIDAK MELATIH ULANG) ===")
+    try:
+        analyzer.load_model("model.pkl")
+    except Exception as e:
+        print(f"Gagal memuat model.pkl: {e}")
+        print("Pastikan Anda sudah mengunggah model.pkl dari komputer lokal Anda ke VPS!")
+        sys.exit(1)
 
     print("\n=== TAHAP 4: DETEKSI ANOMALI (CONTOH HASIL) ===")
     results = analyzer.detect_anomalies(df_features)
@@ -223,5 +240,5 @@ if __name__ == "__main__":
             count += 1
             if count >= 10: break
 
-    print("\n✅ Model terlatih, simulasi berhasil ditampilkan, dan disimpan sebagai model.pkl!")
+    print("\n✅ Simulasi deteksi berhasil dijalankan menggunakan model.pkl yang ada (Tidak ada proses training).")
 
