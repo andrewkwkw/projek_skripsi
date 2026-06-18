@@ -27,7 +27,7 @@ sed -i "s|ExecStart=.*|ExecStart=$CURRENT_DIR/venv/bin/gunicorn --workers 1 --th
 cp sismon.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable sismon
-systemctl start sismon
+systemctl restart sismon
 
 echo "[4/4] Setup Selesai!"
 echo "==============================================="
