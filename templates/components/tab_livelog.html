@@ -1,0 +1,21 @@
+<div id="page-livelog" class="p-6 hidden flex-1 flex flex-col h-[calc(100vh-4rem)]">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0 h-full">
+        <!-- Success -->
+        <div class="wazuh-panel flex flex-col overflow-hidden h-full">
+            <div class="px-4 py-3 border-b border-borderWazuh bg-panel flex items-center justify-between shrink-0">
+                <h3 class="font-medium text-sm text-normal">Authentication Success</h3>
+                <input type="text" id="search-success" onkeyup="filterSuccessLogs()" placeholder="Filter..." class="bg-dark border border-borderWazuh outline-none text-xs text-textMain px-2 py-1 rounded w-1/3">
+            </div>
+            <div class="flex-1 overflow-y-auto p-3 text-xs font-mono text-[#E0E0E0] bg-dark leading-relaxed" id="log-success"></div>
+        </div>
+        
+        <!-- Failed -->
+        <div class="wazuh-panel flex flex-col overflow-hidden h-full">
+            <div class="px-4 py-3 border-b border-borderWazuh bg-panel flex items-center justify-between shrink-0">
+                <h3 class="font-medium text-sm text-critical">Authentication Failure</h3>
+                <input type="text" id="search-failed" onkeyup="filterFailedLogs()" placeholder="Filter..." class="bg-dark border border-borderWazuh outline-none text-xs text-textMain px-2 py-1 rounded w-1/3">
+            </div>
+            <div class="flex-1 overflow-y-auto p-3 text-xs font-mono text-[#E0E0E0] bg-dark leading-relaxed" id="log-failed"></div>
+        </div>
+    </div>
+</div>

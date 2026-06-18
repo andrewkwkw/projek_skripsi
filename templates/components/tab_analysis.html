@@ -1,0 +1,76 @@
+<div id="page-analysis" class="p-6 space-y-6">
+    <!-- Kibana Style Metric Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 shrink-0">
+        <div class="wazuh-panel p-4 flex flex-col justify-center items-center h-24">
+            <h3 class="text-3xl font-bold text-primary" id="kpi-total">0</h3>
+            <p class="text-xs text-textMuted uppercase tracking-wider mt-1">Total Events</p>
+        </div>
+        <div class="wazuh-panel p-4 flex flex-col justify-center items-center h-24">
+            <h3 class="text-3xl font-bold text-textMain" id="kpi-unique">0</h3>
+            <p class="text-xs text-textMuted uppercase tracking-wider mt-1">Unique Sources</p>
+        </div>
+        <div class="wazuh-panel p-4 flex flex-col justify-center items-center h-24">
+            <h3 class="text-3xl font-bold text-critical" id="kpi-critical">0</h3>
+            <p class="text-xs text-textMuted uppercase tracking-wider mt-1">Critical Anomalies</p>
+        </div>
+        <div class="wazuh-panel p-4 flex flex-col justify-center items-center h-24">
+            <h3 class="text-3xl font-bold text-warning" id="stat-peak-z">-</h3>
+            <p class="text-xs text-textMuted uppercase tracking-wider mt-1">Peak Z-Score Source</p>
+        </div>
+    </div>
+
+    <!-- 2 Charts (Wazuh Dashboard Style) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="wazuh-panel p-5">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-medium text-sm text-textMain">Tren Z-Score (Line Chart dengan Threshold Area)</h3>
+            </div>
+            <div class="h-64 relative">
+                <canvas id="chartZScore"></canvas>
+            </div>
+        </div>
+        <div class="wazuh-panel p-5 flex flex-col">
+            <div class="flex justify-between items-center mb-4 shrink-0">
+                <h3 class="font-medium text-sm text-textMain">Tren Isolation Forest (-1: Anomaly, 1: Normal)</h3>
+            </div>
+            <div class="flex-1 relative min-h-[16rem]">
+                <canvas id="chartIsolationForest"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table (Wazuh Discover Style) -->
+    <div class="wazuh-panel p-0 overflow-hidden flex flex-col max-h-[500px]">
+        <div class="px-4 py-3 border-b border-borderWazuh bg-panel flex justify-between items-center shrink-0">
+            <h3 class="font-medium text-sm text-textMain">Events detail</h3>
+            <div class="flex items-center gap-2 bg-dark px-3 py-1 rounded border border-borderWazuh w-72">
+                <i class="fa-solid fa-search text-textMuted text-xs"></i>
+                <input type="text" id="search-analysis" onkeyup="filterAnalysisLogs()" placeholder="Search..." class="bg-transparent border-none outline-none text-xs w-full text-textMain placeholder-textMuted">
+            </div>
+        </div>
+        <div class="overflow-x-auto flex-1">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead class="sticky top-0 bg-dark border-b border-borderWazuh z-10">
+                    <tr class="text-textMuted font-medium">
+                        <th class="px-4 py-2 w-32">Timestamp</th>
+                        <th class="px-4 py-2">Source IP</th>
+                        <th class="px-4 py-2">Count</th>
+                        <th class="px-4 py-2">Z-Score</th>
+                        <th class="px-4 py-2">IF Output</th>
+                        <th class="px-4 py-2">Severity</th>
+                    </tr>
+                </thead>
+                <tbody id="analysis-table" class="divide-y divide-borderWazuh bg-panel">
+                    <!-- Rows injected via JS -->
+                </tbody>
+            </table>
+        </div>
+        <div class="px-4 py-2 border-t border-borderWazuh bg-dark flex justify-between items-center shrink-0">
+            <span id="pagination-info" class="text-xs text-textMuted">Showing 0 hits</span>
+            <div class="flex items-center gap-1">
+                <button onclick="changePage(-1)" id="btn-prev" class="px-2 py-1 bg-panel border border-borderWazuh hover:bg-gray-700 text-textMain text-xs rounded disabled:opacity-50 disabled:cursor-not-allowed"><i class="fa-solid fa-chevron-left"></i></button>
+                <button onclick="changePage(1)" id="btn-next" class="px-2 py-1 bg-panel border border-borderWazuh hover:bg-gray-700 text-textMain text-xs rounded disabled:opacity-50 disabled:cursor-not-allowed"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>

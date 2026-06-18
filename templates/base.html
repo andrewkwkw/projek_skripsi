@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Monitoring Keamanan Server (SSH)</title>
+    
+    <!-- Tailwind & FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom Tailwind Config -->
+    <script src="{{ url_for('static', filename='js/tailwind.config.js') }}"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="flex h-screen overflow-hidden selection:bg-primary selection:text-white">
+
+    <!-- Sidebar -->
+    {% include 'components/sidebar.html' %}
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto bg-dark">
+        <!-- Topbar -->
+        {% include 'components/topbar.html' %}
+
+        <!-- Loading State -->
+        <div id="loading-state" class="flex-1 flex flex-col items-center justify-center hidden z-40 bg-dark">
+            <div class="loader ease-linear rounded-full border-2 border-t-2 border-borderWazuh h-10 w-10 mb-4"></div>
+            <p class="text-textMuted font-medium text-sm" id="loading-text">Fetching data from Wazuh indexer...</p>
+        </div>
+
+        <!-- Dynamic Page Content -->
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Main Application Logic -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

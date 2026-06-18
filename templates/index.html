@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <!-- TAB 1: Security Events -->
+    {% include 'components/tab_analysis.html' %}
+
+    <!-- TAB 2: Top User -->
+    {% include 'components/tab_topuser.html' %}
+
+    <!-- TAB 3: Event Logs -->
+    {% include 'components/tab_livelog.html' %}
+
+    <!-- TAB 4: Raw Data -->
+    {% include 'components/tab_rawdata.html' %}
+{% endblock %}
