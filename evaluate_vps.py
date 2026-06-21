@@ -2,6 +2,8 @@ import os
 import sys
 import pandas as pd
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Mengimpor class SSHLogAnalyzer dari model.py yang ada di dalam folder VPS
 from model import SSHLogAnalyzer
@@ -71,6 +73,20 @@ def run_eval(analyzer, name, raw_logs):
     else:
         print("Data terlalu sedikit atau tidak ada variasi serangan untuk membuat Matrix penuh.")
     print("="*50)
+
+    # === TAMBAHKAN KODE INI UNTUK MENYIMPAN GAMBAR ===
+    plt.figure(figsize=(6, 5))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+                xticklabels=['Aman (0)', 'Serangan (1)'], 
+                yticklabels=['Aman (0)', 'Serangan (1)'])
+    plt.title(f"Confusion Matrix - {name}")
+    plt.ylabel('Aktual')
+    plt.xlabel('Prediksi')
+    plt.tight_layout()
+    plt.savefig('confusion_matrix.png')
+    plt.close()
+    print(">>> Gambar Confusion Matrix berhasil disimpan sebagai 'confusion_matrix.png'")
+    # =================================================
 
 
 def evaluate_model():
