@@ -5,3 +5,5 @@ scikit-learn
 gunicorn==21.2.0
 psutil
 watchdog
+matplotlib
+seaborn

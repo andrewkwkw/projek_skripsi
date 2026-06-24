@@ -72,6 +72,27 @@ def run_eval(analyzer, name, raw_logs):
         print("Data terlalu sedikit atau tidak ada variasi serangan untuk membuat Matrix penuh.")
     print("="*50)
 
+    # Menghasilkan Gambar Confusion Matrix
+    try:
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+        
+        plt.figure(figsize=(8, 6))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+                    xticklabels=['Aman (0)', 'Serangan (1)'], 
+                    yticklabels=['Aman (0)', 'Serangan (1)'])
+        plt.title('Confusion Matrix - Deteksi Serangan SSH')
+        plt.ylabel('Aktual')
+        plt.xlabel('Prediksi')
+        plt.tight_layout()
+        
+        plt.savefig('confusion_matrix.png')
+        print("\n✅ Gambar Confusion Matrix berhasil disimpan sebagai 'confusion_matrix.png'")
+        print("Anda bisa mengunduh file ini dari VPS untuk dimasukkan ke laporan Anda.")
+    except ImportError:
+        print("\n⚠️ Modul matplotlib atau seaborn tidak ditemukan. Gambar gagal dibuat.")
+        print("Jalankan: pip install matplotlib seaborn")
+
 
 def evaluate_model():
     log_file = "/var/log/auth.log"
