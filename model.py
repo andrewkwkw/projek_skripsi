@@ -228,17 +228,17 @@ if __name__ == "__main__":
     print("\n=== TAHAP 4: DETEKSI ANOMALI (CONTOH HASIL) ===")
     results = analyzer.detect_anomalies(df_features)
     
-    # Tampilkan 10 serangan yang paling berbahaya sebagai contoh
-    print("10 Contoh Anomali Terparah (Diurutkan berdasarkan gagal login terbanyak):")
-    results_sorted = sorted(results, key=lambda x: x['failed_count'], reverse=True)
-    count = 0
-    for res in results_sorted:
-        if res['severity'] in ['WARNING', 'CRITICAL']:
-            print(f"[{res['time_window']}] IP: {res['ip']:<15} | Failed: {res['failed_count']:<3} | "
-                  f"Z-Score: {res['z_score']:>5.2f} | IF Output: {res['if_label']:>2} | "
-                  f"SEVERITY: {res['severity']}")
-            count += 1
-            if count >= 10: break
+    # Tampilkan Tabel 5 Hasil Deteksi Model (2 Normal, 4 Warning, 4 Critical)
+    print("\n[ Tabel 5 Hasil Deteksi Model - (2 Normal, 4 Warning, 4 Critical) ]")
+    normal_results = [r for r in results if r['severity'] == 'NORMAL']
+    warning_results = [r for r in results if r['severity'] == 'WARNING']
+    critical_results = sorted([r for r in results if r['severity'] == 'CRITICAL'], key=lambda x: x['failed_count'], reverse=True)
+    
+    selected_results = normal_results[:2] + warning_results[:4] + critical_results[:4]
+    
+    print(f"{'No':<4}{'Waktu':<20}{'IP Address':<18}{'Failed Count':<15}{'Z-Score':<10}{'IF Output':<12}{'Severity'}")
+    for idx, res in enumerate(selected_results, 1):
+        print(f"{idx:<4}{res['time_window']:<20}{res['ip']:<18}{res['failed_count']:<15}{res['z_score']:<10.2f}{res['if_label']:<12}{res['severity']}")
 
     print("\n✅ Simulasi deteksi berhasil dijalankan menggunakan model.pkl yang ada (Tidak ada proses training).")
 
